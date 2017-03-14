@@ -1,6 +1,10 @@
 Library/
 Temp/
 ProjectSettings/
+*.sln
+*.csproj
+*.suo
+
 
 # Windows image file caches
 Thumbs.db
