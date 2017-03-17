@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Collections;
 using GridSystem;
 
+[RequireComponent(typeof(Rigidbody), typeof(Animator))]
 public class Unit : MonoBehaviour {
 
     public int speed = 2;
 
     private LayerMask unitLayer = 1 << 9;
     private Rigidbody rigBody;
+    private Animator animator;
 	void Start () {
 
         GameInput.OnMouseLeftClick += OnMouseLeftClick;
         rigBody = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
 	}
 
     void OnMouseLeftClick(Vector2 clickPos)
@@ -26,7 +29,7 @@ public class Unit : MonoBehaviour {
             if(hitGo.Equals(gameObject))
             {
                 Grid.instance.hightLightUnitMovable(transform.position, speed);
-                StartCoroutine(move(Grid.instance.path));
+                StartCoroutine(move(Grid.instance.getPath()));
             }
         }
         else
@@ -37,18 +40,32 @@ public class Unit : MonoBehaviour {
 
     public IEnumerator move(List<GameObject> path)
     {
-        foreach(GameObject node in path)
+        playRunAnim();
+        for (int i = 0; i < path.Count - 1; i++ )
         {
-            Vector3 startPos = rigBody.position;
-            Vector3 target = node.transform.position;
-            target.y = startPos.y;
-            float timePassed = 0;
-            while (!rigBody.position.Equals(target))
+            Vector3 startPos = path[i].transform.position;
+            Vector3 endPos = path[i+1].transform.position;
+            float dist = Vector3.Distance(startPos, endPos);
+            float distTraveled = 0;
+            endPos.y = startPos.y = rigBody.position.y;
+            while (!rigBody.position.Equals(endPos))
             {
-                timePassed += Time.deltaTime;
-                rigBody.MovePosition(Vector3.Lerp(startPos, target, timePassed / GameInput.unitMoveSpeed));
+                distTraveled += GameInput.unitMoveSpeed * Time.deltaTime;
+                rigBody.position = Vector3.Lerp(startPos, endPos, distTraveled / dist);
                 yield return null;
             }
         }
+        playIdleAnim();
     }
+
+    private  void playRunAnim()
+    {
+        animator.SetBool("run",true);
+    }
+
+    private void playIdleAnim()
+    {
+        animator.SetBool("run", false);
+    }
+
 }

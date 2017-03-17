@@ -32,6 +32,7 @@ namespace GridSystem
             instance = this;
             DontDestroyOnLoad(gameObject);
 
+            path.Add(nodeObjs[0, 5]);
             path.Add(nodeObjs[1, 5]);
             path.Add(nodeObjs[2, 5]);
             path.Add(nodeObjs[2, 4]);
@@ -190,6 +191,35 @@ namespace GridSystem
             return x < horiCount && x >= 0 && y < vertCount && y >= 0;
         }
 
+        public List<GameObject> getPath()
+        {
+            return optimizePath(path);
+        }
+        
+        private List<GameObject> optimizePath(List<GameObject> path)
+        {
+            List<GameObject> optimizedPath = new List<GameObject>();
+            optimizedPath.Add(path[0]);
+            Vector2 curDir = getDirectionBetweenNodeObjs(path[0], path[1]);
+            for (int i = 1; i < path.Count - 1; i++)
+            {
+                Vector2 nextDir = getDirectionBetweenNodeObjs(path[i], path[i+1]);
+                if(!nextDir.Equals(curDir))
+                {
+                    optimizedPath.Add(path[i]);
+                    curDir = nextDir;
+                }
+            }
+            optimizedPath.Add(path[path.Count - 1]);
+            return optimizedPath;
+        }
+
+        private Vector2 getDirectionBetweenNodeObjs(GameObject nodeObj1, GameObject nodeObj2)
+        {
+            Node node1 = nodeObj1.GetComponent<Node>();
+            Node node2 = nodeObj2.GetComponent<Node>();
+            return new Vector2(node2.x - node1.x, node2.y - node1.y).normalized;
+        }
         
     }
 }

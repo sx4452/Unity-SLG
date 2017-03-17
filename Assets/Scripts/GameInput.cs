@@ -3,7 +3,7 @@ using System;
 public class GameInput:MonoBehaviour{
 
     public static event Action<Vector2> OnMouseLeftClick;
-    public static float unitMoveSpeed = 0.5f;
+    public static float unitMoveSpeed = 5f;
 	void Update () {
 	    if(Input.GetMouseButtonUp(0))
         {
