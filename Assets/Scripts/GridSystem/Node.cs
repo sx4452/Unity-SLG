@@ -6,9 +6,9 @@ namespace GridSystem
 {
     public class Node : MonoBehaviour
     {
-        private static Texture movableTex = Resources.Load("Textures/nodeMovable") as Texture;
-        private static Texture dangerousTex = Resources.Load("Textures/nodeDangerous") as Texture;
-        private static Texture normalTex = Resources.Load("Textures/nodeNormal") as Texture;
+        private static Texture movableTex;
+        private static Texture dangerousTex;
+        private static Texture normalTex;
 
         [HideInInspector]
         public int x, y;
@@ -22,7 +22,7 @@ namespace GridSystem
         [HideInInspector]
         public Unit unit;
 
-        private Renderer renderer;
+        private Renderer renderer1;
         private NodeStatus status;
         public NodeStatus Status
         {
@@ -36,7 +36,15 @@ namespace GridSystem
 
         void Awake()
         {
-            renderer = GetComponent<Renderer>();
+            if(movableTex==null)
+                movableTex = Resources.Load("Textures/nodeMovable") as Texture;
+            if (dangerousTex == null)
+                dangerousTex = Resources.Load("Textures/nodeDangerous") as Texture;
+            if (normalTex == null)
+                normalTex = Resources.Load("Textures/nodeNormal") as Texture;
+
+
+            renderer1 = GetComponent<Renderer>();
             status = NodeStatus.Normal;
         }
         public void changeStatus(NodeStatus nodeStatus)
@@ -44,23 +52,23 @@ namespace GridSystem
             switch (nodeStatus)
             {
                 case NodeStatus.Movable:
-                    renderer.material.mainTexture = movableTex;
+                    renderer1.material.mainTexture = movableTex;
                     status = NodeStatus.Movable;
                     break;
                 case NodeStatus.Normal:
-                    renderer.material.mainTexture = normalTex;
+                    renderer1.material.mainTexture = normalTex;
                     status = NodeStatus.Normal;
                     break;
                 case NodeStatus.Obstacle:
-                    renderer.material.mainTexture = normalTex;
+                    renderer1.material.mainTexture = normalTex;
                     status = NodeStatus.Obstacle;
                     break;
                 case NodeStatus.Occupied:
-                    renderer.material.mainTexture = normalTex;
+                    renderer1.material.mainTexture = normalTex;
                     status = NodeStatus.Occupied;
                     break;
                 case NodeStatus.Attackable:
-                    renderer.material.mainTexture = dangerousTex;
+                    renderer1.material.mainTexture = dangerousTex;
                     status = NodeStatus.Attackable;
                     break;
             }

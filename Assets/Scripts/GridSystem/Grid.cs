@@ -7,7 +7,7 @@ namespace GridSystem
     public class Grid : MonoBehaviour
     {
         public static Grid instance;
-        private static GameObject nodePrefab = Resources.Load("Prefabs/node") as GameObject;
+        private static GameObject nodePrefab;
 
         public int sizeX = 50;
         public int sizeY = 50;
@@ -27,6 +27,8 @@ namespace GridSystem
 
         void Start()
         {
+            nodePrefab = Resources.Load("Prefabs/node") as GameObject;
+
             createNodes();
             curHighLightedNodeObjs = null;
 
