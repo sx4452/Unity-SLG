@@ -31,8 +31,9 @@ public class GameManager : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
 
         //区分阵营
-        //GameObject.Find("Player").GetComponent<Unit>().Team = Team.Team1;
-        //GameObject.Find("Enermy").GetComponent<Unit>().Team = Team.Team2;
+        GameObject.Find("WK_heavy_infantry").GetComponent<Unit>().Team = Team.Team1;
+        GameObject.Find("WK_light_infantry").GetComponent<Unit>().Team = Team.Team2;
+        GameObject.Find("WK_archer").GetComponent<Unit>().Team = Team.Team1;
         //GameObject.Find("Enermy (1)").GetComponent<Unit>().Team = Team.Team2;
 
         GameInput.OnClick += OnClick;
@@ -50,8 +51,7 @@ public class GameManager : MonoBehaviour {
             {
                 GameObject hitGo = hit.collider.gameObject;
                 Unit hitUnit = hitGo.GetComponent<Unit>();
-
-                if (!toSelectAttackee)
+                if (!toSelectAttackee && hitUnit.Status == UnitStatus.Ready)
                 {
                     setSelectedUnit(hitUnit);
                     showBattleMenu(false);
@@ -79,6 +79,8 @@ public class GameManager : MonoBehaviour {
     {
         wait = false;
         toSelectAttackee = false;
+        Grid.instance.clear();
+        GameManager.selectedUnit.setStatus(UnitStatus.Idle);
     }
 
     private void setSelectedUnit(Unit unit)

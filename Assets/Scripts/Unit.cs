@@ -9,26 +9,30 @@ public class Unit : MonoBehaviour {
 
     public int speed = 2;
     public int attackRange = 1;
-
-
-    private Rigidbody rigBody;
-    private Animator animator;
-
     private Team team;
-
     public Team Team
     {
         get { return team; }
         set { team = value; }
     }
+    private UnitStatus status;
+    public UnitStatus Status
+    {
+        get { return status; }
+    }
+
+    private Renderer renderer1;
+    private Rigidbody rigBody;
+    private Animator animator;
 
 	void Start () {
 
         rigBody = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-
+        renderer1 = GetComponentInChildren<Renderer>();
         GameObject nodeObj = Grid.instance.getNodeObjFromPosition(transform.position);
         Grid.instance.setNodeStatus(nodeObj, NodeStatus.Occupied);
+        setStatus(UnitStatus.Ready);
 	}
 
     public IEnumerator move(List<GameObject> path)
@@ -82,11 +86,32 @@ public class Unit : MonoBehaviour {
     {
         animator.SetTrigger("attack");
         yield return null;
-        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 0.95)
+        while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1)
         {
             yield return null;
         }
         callback();
     }
 
+    public void setStatus(UnitStatus newStatus)
+    {
+        switch (newStatus)
+        {
+            case UnitStatus.Idle:
+                status = UnitStatus.Idle;
+                renderer1.material.color = Color.red;
+                break;
+            case UnitStatus.Ready:
+                status = UnitStatus.Ready;
+                renderer1.material.color = Color.white;
+                break;
+
+        }
+    }
+}
+
+public enum UnitStatus
+{
+    Idle,
+    Ready
 }

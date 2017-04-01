@@ -45,6 +45,8 @@ public class BattleMenu : MonoBehaviour {
         Button moveBtn = moveBtnObj.GetComponent<Button>();
         moveBtn.onClick.AddListener(onMoveBtnClick);
 
+        Button idleBtn = idleBtnObj.GetComponent<Button>();
+        idleBtn.onClick.AddListener(onIdleBtnClick);
 
         //Debug.Log(instance.gameObject.name);
         //DontDestroyOnLoad(gameObject);
@@ -63,6 +65,6 @@ public class BattleMenu : MonoBehaviour {
 
     private void onIdleBtnClick()
     {
-
+        GameManager.selectedUnit.setStatus(UnitStatus.Idle);
     }
 }

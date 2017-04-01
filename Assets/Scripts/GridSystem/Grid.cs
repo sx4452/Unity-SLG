@@ -369,33 +369,6 @@ namespace GridSystem
                 }
             }
 
-
-            
-
-            //if (isAttackableNode(node.x, node.y - 1))
-            //{
-            //    curAttackableNodeObjs.Add(nodeObjs[node.x, node.y - 1]);
-            //    setNodeStatus(nodeObjs[node.x, node.y - 1], NodeStatus.Attackable);
-            //}
-
-            //if (isAttackableNode(node.x, node.y + 1))
-            //{
-            //    curAttackableNodeObjs.Add(nodeObjs[node.x, node.y + 1]);
-            //    setNodeStatus(nodeObjs[node.x, node.y + 1], NodeStatus.Attackable);
-            //}
-
-            //if (isAttackableNode(node.x + 1, node.y))
-            //{
-            //    curAttackableNodeObjs.Add(nodeObjs[node.x + 1, node.y]);
-            //    setNodeStatus(nodeObjs[node.x + 1, node.y], NodeStatus.Attackable);
-            //}
-
-            //if (isAttackableNode(node.x - 1, node.y))
-            //{
-            //    curAttackableNodeObjs.Add(nodeObjs[node.x - 1, node.y]);
-            //    setNodeStatus(nodeObjs[node.x - 1, node.y], NodeStatus.Attackable);
-            //}
-
             return curAttackableNodeObjs;
         }
 
