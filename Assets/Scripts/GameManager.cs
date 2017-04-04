@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using GridSystem;
 using System.Collections.Generic;
 
@@ -30,15 +29,51 @@ public class GameManager : MonoBehaviour {
         instance = this;
         DontDestroyOnLoad(gameObject);
 
-        //区分阵营
-        GameObject.Find("WK_heavy_infantry").GetComponent<Unit>().Team = Team.Team1;
-        GameObject.Find("WK_light_infantry").GetComponent<Unit>().Team = Team.Team2;
-        GameObject.Find("WK_archer").GetComponent<Unit>().Team = Team.Team1;
+        ////区分阵营
+        //GameObject.Find("WK_heavy_infantry").GetComponent<Unit>().Team = Team.Team1;
+        //GameObject.Find("WK_light_infantry").GetComponent<Unit>().Team = Team.Team2;
+        //GameObject.Find("WK_archer").GetComponent<Unit>().Team = Team.Team1;
         //GameObject.Find("Enermy (1)").GetComponent<Unit>().Team = Team.Team2;
 
         GameInput.OnClick += OnClick;
         toSelectAttackee = false;
         wait = false;
+
+        initUnits();
+
+    }
+
+    /// <summary>
+    ///创建角色
+    /// </summary>
+    private void initUnits()
+    {
+        GameObject swordManPrefab = Resources.Load("Prefabs/Units/SwordMan") as GameObject;
+        GameObject spearManPrefab = Resources.Load("Prefabs/Units/SpearMan") as GameObject;
+        GameObject archerPrefab = Resources.Load("Prefabs/Units/Archer") as GameObject;
+
+        Quaternion team1Rot = Quaternion.Euler(0, 90, 0);
+        GameObject swordMan1 = Instantiate(swordManPrefab, Grid.instance.NodeObjs[0, 3].transform.position, team1Rot);
+        swordMan1.GetComponent<Unit>().Team = Team.Team1;
+        GameObject spearMan1 = Instantiate(spearManPrefab, Grid.instance.NodeObjs[0, 4].transform.position, team1Rot);
+        spearMan1.GetComponent<Unit>().Team = Team.Team1;
+        GameObject archer1 = Instantiate(archerPrefab, Grid.instance.NodeObjs[0, 5].transform.position, team1Rot);
+        archer1.GetComponent<Unit>().Team = Team.Team1;
+
+        Quaternion team2Rot = Quaternion.Euler(0, 270, 0);
+        Texture team2Tex = Resources.Load("Textures/WK_StandardUnits_Red") as Texture;
+
+        
+        GameObject swordMan2 = Instantiate(swordManPrefab, Grid.instance.NodeObjs[9, 3].transform.position, team2Rot);
+        swordMan2.GetComponent<Unit>().Team = Team.Team2;
+        swordMan2.GetComponentInChildren<Renderer>().material.mainTexture = team2Tex;
+        GameObject spearMan2 = Instantiate(spearManPrefab, Grid.instance.NodeObjs[9, 4].transform.position, team2Rot);
+        spearMan2.GetComponent<Unit>().Team = Team.Team2;
+        spearMan2.GetComponentInChildren<Renderer>().material.mainTexture = team2Tex;
+        GameObject archer2 = Instantiate(archerPrefab, Grid.instance.NodeObjs[9, 5].transform.position, team2Rot);
+        archer2.GetComponent<Unit>().Team = Team.Team2;
+        archer2.GetComponentInChildren<Renderer>().material.mainTexture = team2Tex;
+
     }
 
     void OnClick(Vector2 clickPos)

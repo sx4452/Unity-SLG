@@ -15,6 +15,14 @@ namespace GridSystem
         public float maxHeight = 1;//地形上最大高度
 
         private GameObject[,] nodeObjs;
+
+        public GameObject[,] NodeObjs
+        {
+            get { return nodeObjs; }
+        }
+
+      
+
         List<GameObject> curHighLightedNodeObjs;
         List<GameObject> curAttackableNodeObjs;
         int horiCount, vertCount;
