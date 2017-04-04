@@ -9,11 +9,14 @@ public enum Team
 }
 
 public class GameManager : MonoBehaviour {
-    public static int refWidth = 800;
+    //public static int refWidth = 800;
     public static float unitMoveSpeed = 5f;
     public static GameManager instance;
     public static Unit selectedUnit;
     public static GameObject selectedUnitNodeObj;
+
+    public static GameObject CanvasObj;
+    public static GameObject healthBarPrefab;
 
     private LayerMask unitLayerMask = 1 << 9;
 
@@ -41,6 +44,8 @@ public class GameManager : MonoBehaviour {
 
         initUnits();
 
+        CanvasObj = GameObject.FindGameObjectWithTag("Canvas") as GameObject;
+        healthBarPrefab = Resources.Load("Prefabs/UI/HealthBar") as GameObject;
     }
 
     /// <summary>
@@ -131,9 +136,12 @@ public class GameManager : MonoBehaviour {
 
         Vector3 menuPos = Camera.main.WorldToScreenPoint(selectedUnit.transform.position);
 
-        float resolutionRatio = (float)Screen.width / refWidth;
-        menuPos.x = menuPos.x / resolutionRatio + 50;
-        menuPos.y = menuPos.y / resolutionRatio + 50;
+        //float resolutionRatio = (float)Screen.width / refWidth;
+        //menuPos.x = menuPos.x / resolutionRatio + 50;
+        //menuPos.y = menuPos.y / resolutionRatio + 50;
+
+        menuPos.x = menuPos.x + 50;
+        menuPos.y = menuPos.y + 50;
 
         BattleMenu.instance.gameObject.SetActive(true);
         RectTransform battleMenuRectTrans = BattleMenu.instance.gameObject.GetComponent<RectTransform>();
