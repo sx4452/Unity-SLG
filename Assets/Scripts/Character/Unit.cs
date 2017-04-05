@@ -1,8 +1,9 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Collections;
-using GridSystem;
+﻿using GridSystem;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using UI;
+using UnityEngine;
 
 namespace Character
 {
@@ -31,7 +32,7 @@ namespace Character
         private Rigidbody rigBody;
         private Animator animator;
 
-        private GameObject healthBarObj;
+        private HealthBar healthBar;
 
         void Start()
         {
@@ -48,16 +49,15 @@ namespace Character
         void Update()
         {
             Vector3 healBarPos = RectTransformUtility.WorldToScreenPoint(Camera.main, transform.position);
-            healthBarObj.transform.position = healBarPos;
+            healthBar.transform.position = healBarPos;
         }
 
         private void initHealthBar()
         {
-            healthBarObj = Instantiate(GameManager.healthBarPrefab);
-            Transform healthBar = healthBarObj.transform;
-            healthBar.parent = GameManager.CanvasObj.transform;
-            RectTransform healthBarRectTrans = healthBar.GetComponent<RectTransform>();
-            healthBarRectTrans.localScale = Vector3.one;
+            GameObject healthBarObj = Instantiate(GameManager.healthBarPrefab);
+            healthBar = healthBarObj.GetComponent<HealthBar>();
+            healthBar.setHpMax(hp);
+            healthBar.setHp(hp);
         }
 
         public IEnumerator move(List<GameObject> path)
