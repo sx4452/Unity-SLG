@@ -6,9 +6,12 @@ using System;
 
 [RequireComponent(typeof(Rigidbody), typeof(Animator))]
 public class Unit : MonoBehaviour {
-
     public int speed = 2;
     public int attackRange = 1;
+    public int attackPower = 10;
+    public int defence = 5;
+    public int hp = 20;
+
     private Team team;
     public Team Team
     {
@@ -25,7 +28,9 @@ public class Unit : MonoBehaviour {
     private Rigidbody rigBody;
     private Animator animator;
 
-	void Start () {
+    private GameObject healthBarObj;
+
+    void Start () {
 
         rigBody = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
@@ -33,7 +38,23 @@ public class Unit : MonoBehaviour {
         GameObject nodeObj = Grid.instance.getNodeObjFromPosition(transform.position);
         Grid.instance.setNodeStatus(nodeObj, NodeStatus.Occupied);
         setStatus(UnitStatus.Ready);
+        initHealthBar();
 	}
+
+    void Update()
+    {
+        Vector3 healBarPos = RectTransformUtility.WorldToScreenPoint(Camera.main, transform.position);
+        healthBarObj.transform.position = healBarPos;
+    }
+
+    private void initHealthBar()
+    {
+        healthBarObj = Instantiate(GameManager.healthBarPrefab);
+        Transform healthBar = healthBarObj.transform;
+        healthBar.parent = GameManager.CanvasObj.transform;
+        RectTransform healthBarRectTrans = healthBar.GetComponent<RectTransform>();
+        healthBarRectTrans.localScale = Vector3.one;
+    }
 
     public IEnumerator move(List<GameObject> path)
     {
