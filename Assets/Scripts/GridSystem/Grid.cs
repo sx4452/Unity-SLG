@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Character;
 
 namespace GridSystem
 {
@@ -32,7 +33,6 @@ namespace GridSystem
 
         public LayerMask ObstacleLayerMask;
         public LayerMask unitLayerMask;
-
         void Start()
         {
             nodePrefab = Resources.Load("Prefabs/node") as GameObject;
@@ -427,5 +427,51 @@ namespace GridSystem
             return false;
         }
 
+        void OnDrawGizmos()
+        {
+            horiCount = (int)Math.Floor(sizeX / nodeSize);
+            vertCount = (int)Math.Floor(sizeY / nodeSize);
+
+            float originX = transform.position.x - sizeX / 2 + nodeSize / 2;
+            float originZ = transform.position.z - sizeY / 2 + nodeSize / 2; //左下角的起始点
+            for (int i = 0; i < horiCount; i++)
+            {
+                float x = originX + i * nodeSize;
+                for (int j = 0; j < vertCount; j++)
+                {
+                    float z = originZ + j * nodeSize;
+                    Vector3 nodeCenter = new Vector3(x, transform.position.y + maxHeight, z);
+                    nodeCenter.y += 0.01f;
+                    GismosDrawSquare(nodeCenter);
+
+                }
+            }
+        }
+
+        private void GismosDrawSquare(Vector3 center)
+        {
+            float halfNodeSize = nodeSize / 2;
+            Vector3 topLeft = center;
+            topLeft.x -= halfNodeSize;
+            topLeft.z += halfNodeSize;
+
+            Vector3 topRight = center;
+            topRight.x += halfNodeSize;
+            topRight.z += halfNodeSize;
+
+            Vector3 bottomLeft = center;
+            bottomLeft.x -= halfNodeSize;
+            bottomLeft.z -= halfNodeSize;
+
+            Vector3 bottomRight = center;
+            bottomRight.x += halfNodeSize;
+            bottomRight.z -= halfNodeSize;
+
+            Gizmos.color = Color.gray;
+            Gizmos.DrawLine(topLeft, topRight);
+            Gizmos.DrawLine(topRight, bottomRight);
+            Gizmos.DrawLine(bottomRight, bottomLeft);
+            Gizmos.DrawLine(bottomLeft, topLeft);
+        }
     }
 }

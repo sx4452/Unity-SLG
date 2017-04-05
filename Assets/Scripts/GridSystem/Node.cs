@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+using Character;
 namespace GridSystem
 {
     public class Node : MonoBehaviour

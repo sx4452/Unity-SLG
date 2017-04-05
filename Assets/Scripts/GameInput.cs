@@ -2,6 +2,7 @@
 using UnityEngine.EventSystems;
 using System;
 using GridSystem;
+using UI;
 public class GameInput:MonoBehaviour{
 
     public static event Action<Vector2> OnClick;
