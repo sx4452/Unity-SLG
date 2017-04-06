@@ -33,6 +33,8 @@ namespace Character
         private Animator animator;
 
         private HealthBar healthBar;
+        private Action OnAttackComplete;
+        private Unit attackee;
 
         void Start()
         {
@@ -92,9 +94,11 @@ namespace Character
         }
 
 
-        public void attack(Action callback)
+        public void attack(Unit attackee, Action OnAttackComplete)
         {
-            StartCoroutine(playAttackAnim(callback));
+            animator.SetTrigger("attack");
+            this.OnAttackComplete = OnAttackComplete;
+            this.attackee = attackee;
         }
 
         private void playRunAnim()
@@ -107,16 +111,17 @@ namespace Character
             animator.SetBool("run", false);
         }
 
-        private IEnumerator playAttackAnim(Action callback)
-        {
-            animator.SetTrigger("attack");
-            yield return null;
-            while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1)
-            {
-                yield return null;
-            }
-            callback();
-        }
+        //private IEnumerator playAttackAnim(Unit attackee, Action callback)
+        //{
+        //    animator.SetTrigger("attack");
+        //    yield return null;
+        //    while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1)
+        //    {
+        //        yield return null;
+        //    }
+        //    attackee.takeDamage(attackPower - attackee.defence);
+        //    callback();
+        //}
 
         public void setStatus(UnitStatus newStatus)
         {
@@ -132,6 +137,21 @@ namespace Character
                     break;
 
             }
+        }
+
+        public void takeDamage(int damage)
+        {
+            healthBar.setHp(healthBar.getHp() - damage);
+        }
+
+        public void attackAminComplete()
+        {
+            OnAttackComplete();
+        }
+
+        public void attackHit()
+        {
+            attackee.takeDamage(attackPower - attackee.defence);
         }
     }
 

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI
@@ -30,6 +28,11 @@ namespace UI
         {
             hpText.text = value.ToString();
             hpBar.value = value;
+        }
+
+        public int getHp()
+        {
+            return (int)hpBar.value;
         }
     }
 

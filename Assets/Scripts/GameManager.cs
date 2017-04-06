@@ -71,13 +71,13 @@ public class GameManager : MonoBehaviour {
         Texture team2Tex = Resources.Load("Textures/WK_StandardUnits_Red") as Texture;
 
         
-        GameObject swordMan2 = Instantiate(swordManPrefab, Grid.instance.NodeObjs[9, 3].transform.position, team2Rot);
+        GameObject swordMan2 = Instantiate(swordManPrefab, Grid.instance.NodeObjs[2, 3].transform.position, team2Rot);
         swordMan2.GetComponent<Unit>().Team = Team.Team2;
         swordMan2.GetComponentInChildren<Renderer>().material.mainTexture = team2Tex;
-        GameObject spearMan2 = Instantiate(spearManPrefab, Grid.instance.NodeObjs[9, 4].transform.position, team2Rot);
+        GameObject spearMan2 = Instantiate(spearManPrefab, Grid.instance.NodeObjs[2, 4].transform.position, team2Rot);
         spearMan2.GetComponent<Unit>().Team = Team.Team2;
         spearMan2.GetComponentInChildren<Renderer>().material.mainTexture = team2Tex;
-        GameObject archer2 = Instantiate(archerPrefab, Grid.instance.NodeObjs[9, 5].transform.position, team2Rot);
+        GameObject archer2 = Instantiate(archerPrefab, Grid.instance.NodeObjs[2, 5].transform.position, team2Rot);
         archer2.GetComponent<Unit>().Team = Team.Team2;
         archer2.GetComponentInChildren<Renderer>().material.mainTexture = team2Tex;
 
@@ -106,7 +106,7 @@ public class GameManager : MonoBehaviour {
                         Vector3 faceDir = (hitGo.transform.position - selectedUnit.transform.position).normalized;
                         selectedUnit.transform.forward = faceDir;
                         wait = true;
-                        selectedUnit.attack(onAttackComplete);
+                        selectedUnit.attack(hitUnit, onUnitAttackComplete);
                     }
                 }
             }
@@ -117,12 +117,12 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private  void onAttackComplete()
+    private  void onUnitAttackComplete()
     {
         wait = false;
         toSelectAttackee = false;
         Grid.instance.clear();
-        GameManager.selectedUnit.setStatus(UnitStatus.Idle);
+        selectedUnit.setStatus(UnitStatus.Idle);
     }
 
     private void setSelectedUnit(Unit unit)
