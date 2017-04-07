@@ -33,8 +33,10 @@ namespace Character
         private Animator animator;
 
         private HealthBar healthBar;
-        private Action OnAttackComplete;
+        public static Action OnAttackComplete;
         private Unit attackee;
+
+        public static Action OnUnitIdle;
 
         void Start()
         {
@@ -94,10 +96,9 @@ namespace Character
         }
 
 
-        public void attack(Unit attackee, Action OnAttackComplete)
+        public void attack(Unit attackee)
         {
             animator.SetTrigger("attack");
-            this.OnAttackComplete = OnAttackComplete;
             this.attackee = attackee;
         }
 
@@ -130,6 +131,7 @@ namespace Character
                 case UnitStatus.Idle:
                     status = UnitStatus.Idle;
                     renderer1.material.color = Color.red;
+                    OnUnitIdle();
                     break;
                 case UnitStatus.Ready:
                     status = UnitStatus.Ready;

@@ -24,6 +24,11 @@ public class GameManager : MonoBehaviour {
 
     public static bool toSelectAttackee;
     private bool wait;
+
+    private Team currentTurnTeam;//当前行动的阵营
+    private List<Unit> currentNotPlayedUnits;
+    private List<Unit> team1Units;
+    private List<Unit> team2Units;
 	void Start()
     {
         // if the singleton hasn't been initialized yet
@@ -48,6 +53,9 @@ public class GameManager : MonoBehaviour {
 
         CanvasObj = GameObject.FindGameObjectWithTag("Canvas") as GameObject;
         healthBarPrefab = Resources.Load("Prefabs/UI/HealthBar") as GameObject;
+
+        currentTurnTeam = Team.Team1;
+        currentNotPlayedUnits = new List<Unit>(team1Units);
     }
 
     /// <summary>
@@ -60,27 +68,30 @@ public class GameManager : MonoBehaviour {
         GameObject archerPrefab = Resources.Load("Prefabs/Units/Archer") as GameObject;
 
         Quaternion team1Rot = Quaternion.Euler(0, 90, 0);
-        GameObject swordMan1 = Instantiate(swordManPrefab, Grid.instance.NodeObjs[0, 3].transform.position, team1Rot);
-        swordMan1.GetComponent<Unit>().Team = Team.Team1;
-        GameObject spearMan1 = Instantiate(spearManPrefab, Grid.instance.NodeObjs[0, 4].transform.position, team1Rot);
-        spearMan1.GetComponent<Unit>().Team = Team.Team1;
-        GameObject archer1 = Instantiate(archerPrefab, Grid.instance.NodeObjs[0, 5].transform.position, team1Rot);
-        archer1.GetComponent<Unit>().Team = Team.Team1;
+        team1Units = new List<Unit>();
+        addUnit(swordManPrefab, Team.Team1, Grid.instance.NodeObjs[0, 3].transform.position,team1Rot,team1Units);
+        addUnit(spearManPrefab, Team.Team1, Grid.instance.NodeObjs[0, 4].transform.position, team1Rot, team1Units);
+        addUnit(archerPrefab, Team.Team1, Grid.instance.NodeObjs[0, 5].transform.position, team1Rot, team1Units);
 
         Quaternion team2Rot = Quaternion.Euler(0, 270, 0);
         Texture team2Tex = Resources.Load("Textures/WK_StandardUnits_Red") as Texture;
+        team2Units = new List<Unit>();
+        addUnit(swordManPrefab, Team.Team2, Grid.instance.NodeObjs[2, 3].transform.position, team2Rot, team2Units,team2Tex);
+        addUnit(spearManPrefab, Team.Team2, Grid.instance.NodeObjs[2, 4].transform.position, team2Rot, team2Units, team2Tex);
+        addUnit(archerPrefab, Team.Team2, Grid.instance.NodeObjs[2, 5].transform.position, team2Rot, team2Units, team2Tex);
 
-        
-        GameObject swordMan2 = Instantiate(swordManPrefab, Grid.instance.NodeObjs[2, 3].transform.position, team2Rot);
-        swordMan2.GetComponent<Unit>().Team = Team.Team2;
-        swordMan2.GetComponentInChildren<Renderer>().material.mainTexture = team2Tex;
-        GameObject spearMan2 = Instantiate(spearManPrefab, Grid.instance.NodeObjs[2, 4].transform.position, team2Rot);
-        spearMan2.GetComponent<Unit>().Team = Team.Team2;
-        spearMan2.GetComponentInChildren<Renderer>().material.mainTexture = team2Tex;
-        GameObject archer2 = Instantiate(archerPrefab, Grid.instance.NodeObjs[2, 5].transform.position, team2Rot);
-        archer2.GetComponent<Unit>().Team = Team.Team2;
-        archer2.GetComponentInChildren<Renderer>().material.mainTexture = team2Tex;
+        Unit.OnAttackComplete = onUnitAttackComplete;
+        Unit.OnUnitIdle = onUnitIdle;
+    }
 
+    private void addUnit(GameObject unitPrefab, Team team,Vector3 pos, Quaternion rot, List<Unit> teamUnits, Texture texture = null)
+    {
+        GameObject unitObj = Instantiate(unitPrefab, pos, rot);
+        Unit unit = unitObj.GetComponent<Unit>();
+        unit.Team = team;
+        if (texture != null)
+            unitObj.GetComponentInChildren<Renderer>().material.mainTexture = texture;
+        teamUnits.Add(unit);
     }
 
     void OnClick(Vector2 clickPos)
@@ -93,7 +104,7 @@ public class GameManager : MonoBehaviour {
             {
                 GameObject hitGo = hit.collider.gameObject;
                 Unit hitUnit = hitGo.GetComponent<Unit>();
-                if (!toSelectAttackee && hitUnit.Status == UnitStatus.Ready)
+                if (!toSelectAttackee && hitUnit.Status == UnitStatus.Ready && hitUnit.Team == currentTurnTeam)
                 {
                     setSelectedUnit(hitUnit);
                     showBattleMenu(false);
@@ -106,7 +117,7 @@ public class GameManager : MonoBehaviour {
                         Vector3 faceDir = (hitGo.transform.position - selectedUnit.transform.position).normalized;
                         selectedUnit.transform.forward = faceDir;
                         wait = true;
-                        selectedUnit.attack(hitUnit, onUnitAttackComplete);
+                        selectedUnit.attack(hitUnit);
                     }
                 }
             }
@@ -151,6 +162,38 @@ public class GameManager : MonoBehaviour {
 
         BattleMenu.instance.AttackBtnObj.SetActive(AttackableNodeObjs != null && AttackableNodeObjs.Count > 0);
         BattleMenu.instance.MoveBtnObj.SetActive(!moved);
+    }
+
+    private void onUnitIdle()
+    {
+        currentNotPlayedUnits.Remove(selectedUnit);
+        if (currentNotPlayedUnits.Count == 0)
+            switchTeam();
+    }
+
+    private void switchTeam()
+    {
+        switch(currentTurnTeam)
+        {
+            case Team.Team1:
+                resetTeamStatus(team1Units);
+                currentTurnTeam = Team.Team2;
+                currentNotPlayedUnits = new List<Unit>(team2Units);
+                break;
+            case Team.Team2:
+                resetTeamStatus(team2Units);
+                currentTurnTeam = Team.Team1;
+                currentNotPlayedUnits = new List<Unit>(team1Units);
+                break;
+        }
+    }
+
+    private void resetTeamStatus(List<Unit> teamUnits)
+    {
+        foreach(Unit unit in teamUnits)
+        {
+            unit.setStatus(UnitStatus.Ready);
+        }
     }
 
 }
