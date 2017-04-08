@@ -29,6 +29,9 @@ public class GameManager : MonoBehaviour {
     private List<Unit> currentNotPlayedUnits;
     private List<Unit> team1Units;
     private List<Unit> team2Units;
+
+    private int turnCount;
+
 	void Start()
     {
         // if the singleton hasn't been initialized yet
@@ -38,12 +41,6 @@ public class GameManager : MonoBehaviour {
         }
         instance = this;
         DontDestroyOnLoad(gameObject);
-
-        ////区分阵营
-        //GameObject.Find("WK_heavy_infantry").GetComponent<Unit>().Team = Team.Team1;
-        //GameObject.Find("WK_light_infantry").GetComponent<Unit>().Team = Team.Team2;
-        //GameObject.Find("WK_archer").GetComponent<Unit>().Team = Team.Team1;
-        //GameObject.Find("Enermy (1)").GetComponent<Unit>().Team = Team.Team2;
 
         GameInput.OnClick += OnClick;
         toSelectAttackee = false;
@@ -56,6 +53,8 @@ public class GameManager : MonoBehaviour {
 
         currentTurnTeam = Team.Team1;
         currentNotPlayedUnits = new List<Unit>(team1Units);
+        turnCount = 1;
+        TurnIdicator.instance.showTurn("Turn " + turnCount, Color.blue);
     }
 
     /// <summary>
@@ -179,11 +178,13 @@ public class GameManager : MonoBehaviour {
                 resetTeamStatus(team1Units);
                 currentTurnTeam = Team.Team2;
                 currentNotPlayedUnits = new List<Unit>(team2Units);
+                TurnIdicator.instance.showTurn("Enermy's Turn", Color.red);
                 break;
             case Team.Team2:
                 resetTeamStatus(team2Units);
                 currentTurnTeam = Team.Team1;
                 currentNotPlayedUnits = new List<Unit>(team1Units);
+                TurnIdicator.instance.showTurn("Turn " + ++turnCount, Color.blue);
                 break;
         }
     }
