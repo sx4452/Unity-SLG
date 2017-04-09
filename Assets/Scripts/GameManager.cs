@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour {
     public static Unit selectedUnit;
     public static GameObject selectedUnitNodeObj;
 
-    public static GameObject CanvasObj;
+    public static GameObject healthBarContainerObj;
     public static GameObject healthBarPrefab;
 
     private LayerMask unitLayerMask = 1 << 9;
@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour {
 
         initUnits();
 
-        CanvasObj = GameObject.FindGameObjectWithTag("Canvas") as GameObject;
+        healthBarContainerObj = GameObject.FindGameObjectWithTag("HealthBarContainer") as GameObject;
         healthBarPrefab = Resources.Load("Prefabs/UI/HealthBar") as GameObject;
 
         currentTurnTeam = Team.Team1;

@@ -14,7 +14,7 @@ namespace UI
             hpBar = GetComponentInChildren<Slider>();
 
             //自动添加到canvas下面，scale设为1
-            transform.parent = GameManager.CanvasObj.transform;
+            transform.parent = GameManager.healthBarContainerObj.transform;
             RectTransform healthBarRectTrans = GetComponent<RectTransform>();
             healthBarRectTrans.localScale = Vector3.one;
         }

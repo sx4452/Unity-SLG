@@ -12,6 +12,7 @@ namespace GridSystem
 
         public int sizeX = 50;
         public int sizeY = 50;
+        public float spaceBetweenNodes = 0.2f;
         public float nodeSize = 1;
         public float maxHeight = 1;//地形上最大高度
 
@@ -29,12 +30,22 @@ namespace GridSystem
         int horiCount, vertCount;
 
         private int NodeLayer = 8;
-        private int UnitLayer = 9;
 
         public LayerMask ObstacleLayerMask;
         public LayerMask unitLayerMask;
+
+        float realSizeX;
+        float realSizeY;
+
+
         void Start()
         {
+            horiCount = (int)Math.Floor(sizeX / nodeSize);
+            vertCount = (int)Math.Floor(sizeY / nodeSize);
+            realSizeX = sizeX + (horiCount - 1) * spaceBetweenNodes;
+            realSizeY = sizeY + (vertCount - 1) * spaceBetweenNodes;
+
+
             nodePrefab = Resources.Load("Prefabs/node") as GameObject;
 
             createNodes();
@@ -49,6 +60,9 @@ namespace GridSystem
             DontDestroyOnLoad(gameObject);
 
             GameInput.OnClick += OnClick;
+
+           
+
 
         }
 
@@ -183,18 +197,16 @@ namespace GridSystem
 
         private void createNodes()
         {
-            horiCount = (int)Math.Floor(sizeX / nodeSize);
-            vertCount = (int)Math.Floor(sizeY / nodeSize);
             nodeObjs = new GameObject[horiCount, vertCount];
 
-            float originX = transform.position.x - sizeX / 2 + nodeSize / 2;
-            float originZ = transform.position.z - sizeY / 2 + nodeSize / 2; //左下角的起始点
+            float originX = transform.position.x - realSizeX / 2 + nodeSize / 2;
+            float originZ = transform.position.z - realSizeY / 2 + nodeSize / 2; //左下角的起始点
             for (int i = 0; i < horiCount; i++)
             {
-                float x = originX + i * nodeSize;
+                float x = originX + i * (nodeSize + spaceBetweenNodes);
                 for (int j = 0; j < vertCount; j++)
                 {
-                    float z = originZ + j * nodeSize;
+                    float z = originZ + j * (nodeSize+spaceBetweenNodes);
                     Vector3 nodeCenter = new Vector3(x, transform.position.y + maxHeight, z);
                     nodeCenter.y += 0.01f;
 
@@ -227,11 +239,17 @@ namespace GridSystem
 
         public GameObject getNodeObjFromPosition(Vector3 position)
         {
-            int x = (int)((position.x + sizeX / 2 - transform.position.x) / nodeSize);
-            int y = (int)((position.z + sizeY / 2 - transform.position.z) / nodeSize);
+            int x = (int)((position.x + realSizeX / 2 - transform.position.x) / (nodeSize+spaceBetweenNodes));
+            int y = (int)((position.z + realSizeY / 2 - transform.position.z) / (nodeSize + spaceBetweenNodes));
             if (x < horiCount && y < vertCount)
             {
-                return nodeObjs[x, y];
+                GameObject tempNodeObj = nodeObjs[x, y];
+                float distX = Mathf.Abs(position.x - nodeObjs[x, y].transform.position.x);
+                float distZ = Mathf.Abs(position.z - nodeObjs[x, y].transform.position.z);
+                if (distX <= nodeSize/2 && distZ <= nodeSize/2)
+                    return nodeObjs[x, y];
+                else
+                    return null;
             }
             else
                 return null;
@@ -432,14 +450,16 @@ namespace GridSystem
             horiCount = (int)Math.Floor(sizeX / nodeSize);
             vertCount = (int)Math.Floor(sizeY / nodeSize);
 
-            float originX = transform.position.x - sizeX / 2 + nodeSize / 2;
-            float originZ = transform.position.z - sizeY / 2 + nodeSize / 2; //左下角的起始点
+            float realSizeX = sizeX + (horiCount - 1) * spaceBetweenNodes;
+            float realSizeY = sizeY + (vertCount - 1) * spaceBetweenNodes;
+            float originX = transform.position.x - realSizeX / 2 + nodeSize / 2;
+            float originZ = transform.position.z - realSizeY / 2 + nodeSize / 2; //左下角的起始点
             for (int i = 0; i < horiCount; i++)
             {
-                float x = originX + i * nodeSize;
+                float x = originX + i * (nodeSize + spaceBetweenNodes);
                 for (int j = 0; j < vertCount; j++)
                 {
-                    float z = originZ + j * nodeSize;
+                    float z = originZ + j * (nodeSize + spaceBetweenNodes);
                     Vector3 nodeCenter = new Vector3(x, transform.position.y + maxHeight, z);
                     nodeCenter.y += 0.01f;
                     GismosDrawSquare(nodeCenter);
