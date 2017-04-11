@@ -17,13 +17,11 @@ public class GameManager : MonoBehaviour {
     public static Unit selectedUnit;
     public static GameObject selectedUnitNodeObj;
 
+    public static SelectionTarget selectionTarget;//用于指示下一个点击选啥
+
     public static GameObject healthBarContainerObj;
     public static GameObject healthBarPrefab;
 
-    private LayerMask unitLayerMask = 1 << 9;
-
-    public static bool toSelectAttackee;
-    private bool wait;
 
     private Team currentTurnTeam;//当前行动的阵营
     private List<Unit> currentNotPlayedUnits;
@@ -31,6 +29,8 @@ public class GameManager : MonoBehaviour {
     private List<Unit> team2Units;
 
     private int turnCount;
+    private int NodeLayer = 8;
+    private int UnitLayer = 9;
 
 	void Start()
     {
@@ -43,8 +43,6 @@ public class GameManager : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
 
         GameInput.OnClick += OnClick;
-        toSelectAttackee = false;
-        wait = false;
 
         initUnits();
 
@@ -55,6 +53,8 @@ public class GameManager : MonoBehaviour {
         currentNotPlayedUnits = new List<Unit>(team1Units);
         turnCount = 1;
         TurnIdicator.instance.showTurn("Turn " + turnCount, Color.blue);
+
+        selectionTarget = SelectionTarget.Unit;
     }
 
     /// <summary>
@@ -95,42 +95,67 @@ public class GameManager : MonoBehaviour {
 
     void OnClick(Vector2 clickPos)
     {
-        if(!wait)
+        switch(selectionTarget)
         {
-            Ray ray = Camera.main.ScreenPointToRay(clickPos);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, 1000, unitLayerMask))
-            {
-                GameObject hitGo = hit.collider.gameObject;
-                Unit hitUnit = hitGo.GetComponent<Unit>();
-                if (!toSelectAttackee && hitUnit.Status == UnitStatus.Ready && hitUnit.Team == currentTurnTeam)
+            case SelectionTarget.Unit:
+                Unit hitUnit = getHitObject<Unit>(clickPos, 1<<UnitLayer);
+                if (hitUnit !=null && hitUnit.Status == UnitStatus.Ready && hitUnit.Team == currentTurnTeam)
                 {
                     setSelectedUnit(hitUnit);
                     showBattleMenu(false);
                 }
-                else
+                break;
+            case SelectionTarget.Attackee:
+                hitUnit = getHitObject<Unit>(clickPos, 1 << UnitLayer);
+                if (hitUnit != null)
                 {
-                    Node hitNode = Grid.instance.getNodeObjFromPosition(hitGo.transform.position).GetComponent<Node>();
+                    Node hitNode = Grid.instance.getNodeObjFromPosition(hitUnit.transform.position).GetComponent<Node>();
                     if (hitNode.Status == NodeStatus.Attackable)
                     {
-                        Vector3 faceDir = (hitGo.transform.position - selectedUnit.transform.position).normalized;
+                        Vector3 faceDir = (hitUnit.transform.position - selectedUnit.transform.position).normalized;
                         selectedUnit.transform.forward = faceDir;
-                        wait = true;
                         selectedUnit.attack(hitUnit);
                     }
                 }
-            }
-            else//没有点击中攻击人物的话，取消攻击状态
-            {
-                toSelectAttackee = false;
-            }
+                break;
+            case SelectionTarget.Node:
+                RaycastHit hit;
+                if (Physics.Raycast(Camera.main.ScreenPointToRay(clickPos), out hit, 1000))
+                {
+                    if (hit.collider.gameObject.layer == NodeLayer)
+                    {
+                        GameObject hitNodeObj = Grid.instance.getNodeObjFromPosition(hit.point);
+
+                        if (selectedUnitNodeObj != null && hitNodeObj != selectedUnitNodeObj)
+                        {
+                            Node hitNode = hitNodeObj.GetComponent<Node>();
+                            if (hitNode.Status == NodeStatus.Movable)
+                            {
+                                List<GameObject> path = Grid.instance.getShortestPath(selectedUnitNodeObj, hitNodeObj);
+                                StartCoroutine(GameManager.selectedUnit.move(path));
+                                Grid.instance.clear();
+                            }
+                        }
+                    }
+                }
+                break;
         }
     }
 
+    private T getHitObject<T>(Vector2 clickPos, LayerMask layermask)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(clickPos);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 1000, layermask))
+        {
+            GameObject hitGo = hit.collider.gameObject;
+            return hitGo.GetComponent<T>();
+        }
+        return default(T);
+    }
     private  void onUnitAttackComplete()
     {
-        wait = false;
-        toSelectAttackee = false;
+        selectionTarget = SelectionTarget.Unit;
         Grid.instance.clear();
         selectedUnit.setStatus(UnitStatus.Idle);
     }
@@ -198,3 +223,11 @@ public class GameManager : MonoBehaviour {
     }
 
 }
+
+public enum SelectionTarget
+{
+    Unit,
+    Attackee,
+    Node
+}
+

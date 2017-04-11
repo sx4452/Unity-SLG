@@ -29,8 +29,6 @@ namespace GridSystem
         List<GameObject> curAttackableNodeObjs;
         int horiCount, vertCount;
 
-        private int NodeLayer = 8;
-
         public LayerMask ObstacleLayerMask;
         public LayerMask unitLayerMask;
 
@@ -58,17 +56,6 @@ namespace GridSystem
             }
             instance = this;
             DontDestroyOnLoad(gameObject);
-
-            GameInput.OnClick += OnClick;
-
-           
-
-
-        }
-
-        void Destory()
-        {
-            GameInput.OnClick -= OnClick;
         }
 
         public void hightLightUnitMovable()
@@ -84,30 +71,7 @@ namespace GridSystem
             }
         }
 
-        private void OnClick(Vector2 mousePos)
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePos), out hit, 1000))
-            {
-                if(hit.collider.gameObject.layer == NodeLayer)
-                {
-                    GameObject hitNodeObj = getNodeObjFromPosition(hit.point);
-
-                    if (GameManager.selectedUnitNodeObj != null && hitNodeObj != GameManager.selectedUnitNodeObj)
-                    {
-                        Node hitNode = hitNodeObj.GetComponent<Node>();
-                        if (hitNode.Status == NodeStatus.Movable)
-                        {
-                            List<GameObject> path = getShortestPath(GameManager.selectedUnitNodeObj, hitNodeObj);
-                            StartCoroutine(GameManager.selectedUnit.move(path));
-                        }
-                        clear();
-                    }
-                }
-            }
-        }
-
-        private List<GameObject> getShortestPath(GameObject fromNodeObj, GameObject toNodeObj)
+        public List<GameObject> getShortestPath(GameObject fromNodeObj, GameObject toNodeObj)
         {
             Node startNode = fromNodeObj.GetComponent<Node>();
             Node targetNode = toNodeObj.GetComponent<Node>();
