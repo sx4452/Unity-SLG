@@ -10,7 +10,7 @@ public class GameInput:MonoBehaviour{
 	    if(Input.GetMouseButtonUp(0))
         {
             //战斗菜单没显示；没有点击UI，防止点击移动后，马上就移动，因为点击移动的同时，raycast hit到了ui后面的node
-            if (!BattleMenu.instance.gameObject.activeSelf && !EventSystem.current.IsPointerOverGameObject())
+            if (!EventSystem.current.IsPointerOverGameObject())
             {
                 OnClick(Input.mousePosition);
             }

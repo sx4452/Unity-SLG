@@ -352,7 +352,6 @@ namespace GridSystem
                             closedSet.Add(nodeObj);
                             if (isAttackableNode(node.x, node.y))
                             {
-                                setNodeStatus(nodeObj, NodeStatus.Attackable);
                                 curAttackableNodeObjs.Add(nodeObj);
                             }
                             s.Push(nodeObj);
