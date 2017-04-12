@@ -92,7 +92,6 @@ namespace Character
                 Grid.instance.setNodeStatus(nodeObj, NodeStatus.Occupied);
             }
             playIdleAnim();
-            GameManager.instance.showBattleMenu(true);
         }
 
 

@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour {
     public static GameManager instance;
     public static Unit selectedUnit;
     public static GameObject selectedUnitNodeObj;
-    public static SelectionTarget selectionTarget;//用于指示下一个点击选啥
+    public static ActionPhase actionPhase;//用于指示下一个点击选啥
     public static GameObject healthBarContainerObj;
     public static GameObject healthBarPrefab;
 
@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour {
         turnCount = 1;
         TurnIdicator.instance.showTurn("Turn " + turnCount, Color.blue);
 
-        selectionTarget = SelectionTarget.Unit;
+        actionPhase = ActionPhase.SelectUnit;
         nodeLayer = LayerMask.NameToLayer("Node");
         unitLayer = LayerMask.NameToLayer("Unit");
     }
@@ -93,17 +93,16 @@ public class GameManager : MonoBehaviour {
 
     void OnClick(Vector2 clickPos)
     {
-        switch(selectionTarget)
+        switch(actionPhase)
         {
-            case SelectionTarget.Unit:
+            case ActionPhase.SelectUnit:
                 Unit hitUnit = getHitObject<Unit>(clickPos, 1<<unitLayer);
                 if (hitUnit !=null && hitUnit.Status == UnitStatus.Ready && hitUnit.Team == currentTurnTeam)
                 {
                     setSelectedUnit(hitUnit);
-                    showBattleMenu(false);
                 }
                 break;
-            case SelectionTarget.Attackee:
+            case SelectionTarget.Attackee:asas
                 hitUnit = getHitObject<Unit>(clickPos, 1 << unitLayer);
                 if (hitUnit != null)
                 {
@@ -154,7 +153,7 @@ public class GameManager : MonoBehaviour {
 
     private  void onUnitAttackComplete()
     {
-        selectionTarget = SelectionTarget.Unit;
+        actionPhase = ActionPhase.SelectUnit;
         Grid.instance.clear();
         selectedUnit.setStatus(UnitStatus.Idle);
     }
@@ -164,30 +163,33 @@ public class GameManager : MonoBehaviour {
         Grid.instance.clear();
         selectedUnit = unit;
         selectedUnitNodeObj = Grid.instance.getNodeObjFromPosition(unit.transform.position);
+        Grid.instance.hightLightUnitMovable();
+        Grid.instance.highLightUnitAttackable();
+        actionPhase = ActionPhase.MoveOrAttack;
     }
 
-    public void showBattleMenu(bool moved)
-    {
-        List<GameObject> AttackableNodeObjs = Grid.instance.getAttackableNodeObjs();
+    //public void showBattleMenu(bool moved)
+    //{
+    //    List<GameObject> AttackableNodeObjs = Grid.instance.getAttackableNodeObjs();
 
-        Vector3 menuPos = Camera.main.WorldToScreenPoint(selectedUnit.transform.position);
+    //    Vector3 menuPos = Camera.main.WorldToScreenPoint(selectedUnit.transform.position);
 
-        //float resolutionRatio = (float)Screen.width / refWidth;
-        //menuPos.x = menuPos.x / resolutionRatio + 50;
-        //menuPos.y = menuPos.y / resolutionRatio + 50;
+    //    //float resolutionRatio = (float)Screen.width / refWidth;
+    //    //menuPos.x = menuPos.x / resolutionRatio + 50;
+    //    //menuPos.y = menuPos.y / resolutionRatio + 50;
 
-        menuPos.x = menuPos.x + 50;
-        menuPos.y = menuPos.y + 50;
+    //    menuPos.x = menuPos.x + 50;
+    //    menuPos.y = menuPos.y + 50;
 
-        BattleMenu.instance.gameObject.SetActive(true);
-        RectTransform battleMenuRectTrans = BattleMenu.instance.gameObject.GetComponent<RectTransform>();
-        battleMenuRectTrans.anchoredPosition = menuPos;
+    //    BattleMenu.instance.gameObject.SetActive(true);
+    //    RectTransform battleMenuRectTrans = BattleMenu.instance.gameObject.GetComponent<RectTransform>();
+    //    battleMenuRectTrans.anchoredPosition = menuPos;
 
-        BattleMenu.instance.AttackBtnObj.SetActive(AttackableNodeObjs != null && AttackableNodeObjs.Count > 0);
-        BattleMenu.instance.MoveBtnObj.SetActive(!moved);
+    //    BattleMenu.instance.AttackBtnObj.SetActive(AttackableNodeObjs != null && AttackableNodeObjs.Count > 0);
+    //    BattleMenu.instance.MoveBtnObj.SetActive(!moved);
 
-        selectionTarget = SelectionTarget.BattleMenu;
-    }
+    //    selectionTarget = SelectionTarget.BattleMenu;
+    //}
 
     private void onUnitIdle()
     {
@@ -225,11 +227,10 @@ public class GameManager : MonoBehaviour {
 
 }
 
-public enum SelectionTarget
+public enum ActionPhase
 {
-    Unit,
-    Attackee,
-    Node,
-    BattleMenu
+    SelectUnit,
+    MoveOrAttack,
+    Attack
 }
 

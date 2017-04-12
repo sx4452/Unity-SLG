@@ -9,21 +9,23 @@ namespace UI
     {
         public static BattleMenu instance;
 
-        private GameObject attackBtnObj;
-        private GameObject moveBtnObj;
+        
         private GameObject idleBtnObj;
         private GameObject cancelObj;
         private Vector3 returnPos;
         private Quaternion returnRot;
         private Command lastCommand;//记录上次点击的按钮
-        public GameObject AttackBtnObj
-        {
-            get { return attackBtnObj; }
-        }
-        public GameObject MoveBtnObj
-        {
-            get { return moveBtnObj; }
-        }
+
+        //private GameObject attackBtnObj;
+        //private GameObject moveBtnObj;
+        //public GameObject AttackBtnObj
+        //{
+        //    get { return attackBtnObj; }
+        //}
+        //public GameObject MoveBtnObj
+        //{
+        //    get { return moveBtnObj; }
+        //}
         public GameObject IdleBtnObj
         {
             get { return idleBtnObj; }
@@ -44,16 +46,16 @@ namespace UI
             gameObject.SetActive(false);
 
 
-            attackBtnObj = transform.GetChild(0).gameObject;
-            moveBtnObj = transform.GetChild(1).gameObject;
+            //attackBtnObj = transform.GetChild(0).gameObject;
+            //moveBtnObj = transform.GetChild(1).gameObject;
             idleBtnObj = transform.GetChild(2).gameObject;
             cancelObj = transform.GetChild(3).gameObject;
 
-            Button attackBtn = attackBtnObj.GetComponent<Button>();
-            attackBtn.onClick.AddListener(onAttackBtnClick);
+            //Button attackBtn = attackBtnObj.GetComponent<Button>();
+            //attackBtn.onClick.AddListener(onAttackBtnClick);
 
-            Button moveBtn = moveBtnObj.GetComponent<Button>();
-            moveBtn.onClick.AddListener(onMoveBtnClick);
+            //Button moveBtn = moveBtnObj.GetComponent<Button>();
+            //moveBtn.onClick.AddListener(onMoveBtnClick);
 
             Button idleBtn = idleBtnObj.GetComponent<Button>();
             idleBtn.onClick.AddListener(onIdleBtnClick);
@@ -65,31 +67,31 @@ namespace UI
 
         }
 
-        private void onMoveBtnClick()
-        {
-            Grid.instance.hightLightUnitMovable();
-            returnPos = GameManager.selectedUnit.transform.position;
-            returnRot = GameManager.selectedUnit.transform.rotation;
-            GameManager.selectionTarget = SelectionTarget.Node;
-            showCancelOnly();
-            lastCommand = Command.Move;
-        }
+        //private void onMoveBtnClick()
+        //{
+        //    Grid.instance.hightLightUnitMovable();
+        //    returnPos = GameManager.selectedUnit.transform.position;
+        //    returnRot = GameManager.selectedUnit.transform.rotation;
+        //    GameManager.selectionTarget = SelectionTarget.Node;
+        //    showCancelOnly();
+        //    lastCommand = Command.Move;
+        //}
 
-        private void onAttackBtnClick()
-        {
-            gameObject.SetActive(false);
-            setNodeStatus(nodeObj, NodeStatus.Attackable);
+        //private void onAttackBtnClick()
+        //{
+        //    gameObject.SetActive(false);
+        //    setNodeStatus(nodeObj, NodeStatus.Attackable);
 
 
-            GameManager.selectionTarget = SelectionTarget.Attackee;
-            lastCommand = Command.Attack;
-        }
+        //    GameManager.selectionTarget = SelectionTarget.Attackee;
+        //    lastCommand = Command.Attack;
+        //}
 
         private void onIdleBtnClick()
         {
             gameObject.SetActive(false);
             GameManager.selectedUnit.setStatus(UnitStatus.Idle);
-            GameManager.selectionTarget = SelectionTarget.Unit;
+            GameManager.actionPhase = ActionPhase.SelectUnit;
             lastCommand = Command.Idle;
         }
 
@@ -108,19 +110,20 @@ namespace UI
                 GameManager.selectedUnit.transform.rotation = returnRot;
                 Grid.instance.clear();
             }
-            GameManager.selectionTarget = SelectionTarget.Unit;
+            GameManager.actionPhase = ActionPhase.SelectUnit;
             lastCommand = Command.Cancel;
         }
 
         public void showCancelOnly()
         {
-            attackBtnObj.SetActive(false);
-            moveBtnObj.SetActive(false);
+            //attackBtnObj.SetActive(false);
+            //moveBtnObj.SetActive(false);
             IdleBtnObj.SetActive(false);
-
             RectTransform rectTrans = GetComponent<RectTransform>();
             rectTrans.anchoredPosition = new Vector2(50,50);
         }
+
+
 
         private enum Command
         {

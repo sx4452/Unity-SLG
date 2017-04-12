@@ -23,8 +23,6 @@ namespace GridSystem
             get { return nodeObjs; }
         }
 
-      
-
         List<GameObject> curHighLightedNodeObjs;
         List<GameObject> curAttackableNodeObjs;
         int horiCount, vertCount;
@@ -60,14 +58,35 @@ namespace GridSystem
 
         public void hightLightUnitMovable()
         {
-            clear();
             //GameObject nodeObj = getNodeObjFromPosition(unitPos);
             List<GameObject> movableNodeObjs = getMovableNodeObjs(GameManager.selectedUnitNodeObj, GameManager.selectedUnit.speed);
             if (!movableNodeObjs.Equals(curHighLightedNodeObjs))
             {
+                if(curHighLightedNodeObjs != null)
+                {
+                    foreach (GameObject node in curHighLightedNodeObjs)
+                        node.GetComponent<Node>().changeStatus(NodeStatus.Normal);
+                }
+
                 curHighLightedNodeObjs = movableNodeObjs;
                 foreach (GameObject node in curHighLightedNodeObjs)
                     node.GetComponent<Node>().changeStatus(NodeStatus.Movable);
+            }
+        }
+        public void highLightUnitAttackable()
+        {
+            List<GameObject> attackableNodeObjs = getAttackableNodeObjs();
+            if(!attackableNodeObjs.Equals(curAttackableNodeObjs))
+            {
+                if(curAttackableNodeObjs != null)
+                {
+                    foreach (GameObject node in curAttackableNodeObjs)
+                        node.GetComponent<Node>().changeStatus(NodeStatus.Normal);
+                }
+
+                curAttackableNodeObjs = attackableNodeObjs;
+                foreach (GameObject node in curAttackableNodeObjs)
+                    node.GetComponent<Node>().changeStatus(NodeStatus.Attackable);
             }
         }
 
@@ -327,7 +346,7 @@ namespace GridSystem
 
         public List<GameObject> getAttackableNodeObjs()
         {
-            curAttackableNodeObjs = new List<GameObject>();
+            List<GameObject>  attackableNodeObjs = new List<GameObject>();
             GameObject currentNodeObj = getNodeObjFromPosition(GameManager.selectedUnit.transform.position);
             Node startNode = currentNodeObj.GetComponent<Node>();
             List<GameObject> closedSet = new List<GameObject>();
@@ -352,7 +371,7 @@ namespace GridSystem
                             closedSet.Add(nodeObj);
                             if (isAttackableNode(node.x, node.y))
                             {
-                                curAttackableNodeObjs.Add(nodeObj);
+                                attackableNodeObjs.Add(nodeObj);
                             }
                             s.Push(nodeObj);
                         }
@@ -360,7 +379,7 @@ namespace GridSystem
                 }
             }
 
-            return curAttackableNodeObjs;
+            return attackableNodeObjs;
         }
 
         private List<GameObject> getAdjacentNodeObjs(GameObject nodeObj)
