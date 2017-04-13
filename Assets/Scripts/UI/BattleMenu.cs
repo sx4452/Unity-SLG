@@ -14,18 +14,7 @@ namespace UI
         private GameObject cancelObj;
         private Vector3 returnPos;
         private Quaternion returnRot;
-        private Command lastCommand;//记录上次点击的按钮
 
-        //private GameObject attackBtnObj;
-        //private GameObject moveBtnObj;
-        //public GameObject AttackBtnObj
-        //{
-        //    get { return attackBtnObj; }
-        //}
-        //public GameObject MoveBtnObj
-        //{
-        //    get { return moveBtnObj; }
-        //}
         public GameObject IdleBtnObj
         {
             get { return idleBtnObj; }
@@ -45,62 +34,26 @@ namespace UI
             instance = this;
             gameObject.SetActive(false);
 
-
-            //attackBtnObj = transform.GetChild(0).gameObject;
-            //moveBtnObj = transform.GetChild(1).gameObject;
-            idleBtnObj = transform.GetChild(2).gameObject;
-            cancelObj = transform.GetChild(3).gameObject;
-
-            //Button attackBtn = attackBtnObj.GetComponent<Button>();
-            //attackBtn.onClick.AddListener(onAttackBtnClick);
-
-            //Button moveBtn = moveBtnObj.GetComponent<Button>();
-            //moveBtn.onClick.AddListener(onMoveBtnClick);
+            idleBtnObj = transform.GetChild(0).gameObject;
+            cancelObj = transform.GetChild(1).gameObject;
 
             Button idleBtn = idleBtnObj.GetComponent<Button>();
             idleBtn.onClick.AddListener(onIdleBtnClick);
 
             Button cancelBtn = cancelObj.GetComponent<Button>();
             cancelBtn.onClick.AddListener(onCancelBtnClick);
-
-            lastCommand = Command.Null;
-
         }
-
-        //private void onMoveBtnClick()
-        //{
-        //    Grid.instance.hightLightUnitMovable();
-        //    returnPos = GameManager.selectedUnit.transform.position;
-        //    returnRot = GameManager.selectedUnit.transform.rotation;
-        //    GameManager.selectionTarget = SelectionTarget.Node;
-        //    showCancelOnly();
-        //    lastCommand = Command.Move;
-        //}
-
-        //private void onAttackBtnClick()
-        //{
-        //    gameObject.SetActive(false);
-        //    setNodeStatus(nodeObj, NodeStatus.Attackable);
-
-
-        //    GameManager.selectionTarget = SelectionTarget.Attackee;
-        //    lastCommand = Command.Attack;
-        //}
 
         private void onIdleBtnClick()
         {
             gameObject.SetActive(false);
             GameManager.selectedUnit.setStatus(UnitStatus.Idle);
-            GameManager.actionPhase = ActionPhase.SelectUnit;
-            lastCommand = Command.Idle;
         }
 
         private void onCancelBtnClick()
         {
             gameObject.SetActive(false);
 
-            if(lastCommand == Command.Move)
-            {
                 GameObject nodeObj = Grid.instance.getNodeObjFromPosition(GameManager.selectedUnit.transform.position);
                 Grid.instance.setNodeStatus(nodeObj, NodeStatus.Normal);
                 nodeObj = Grid.instance.getNodeObjFromPosition(returnPos);
@@ -109,9 +62,6 @@ namespace UI
                 GameManager.selectedUnit.transform.position = returnPos;
                 GameManager.selectedUnit.transform.rotation = returnRot;
                 Grid.instance.clear();
-            }
-            GameManager.actionPhase = ActionPhase.SelectUnit;
-            lastCommand = Command.Cancel;
         }
 
         public void showCancelOnly()
@@ -123,19 +73,11 @@ namespace UI
             rectTrans.anchoredPosition = new Vector2(50,50);
         }
 
-
-
-        private enum Command
+        public void show()
         {
-            Attack,
-            Move,
-            Idle,
-            Cancel,
-            Null
+            gameObject.SetActive(true);
+            RectTransform rectTrans = GetComponent<RectTransform>();
+            rectTrans.anchoredPosition = new Vector2(50, 50);
         }
-
     }
-
-
-
 }

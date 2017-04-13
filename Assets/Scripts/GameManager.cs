@@ -16,7 +16,6 @@ public class GameManager : MonoBehaviour {
     public static GameManager instance;
     public static Unit selectedUnit;
     public static GameObject selectedUnitNodeObj;
-    public static ActionPhase actionPhase;//用于指示下一个点击选啥
     public static GameObject healthBarContainerObj;
     public static GameObject healthBarPrefab;
 
@@ -25,8 +24,9 @@ public class GameManager : MonoBehaviour {
     private List<Unit> team1Units;
     private List<Unit> team2Units;
     private int turnCount;
-    private int nodeLayer;
-    private int unitLayer;
+
+    public static int nodeLayer;
+    public static int unitLayer;
 
 	void Start()
     {
@@ -50,7 +50,6 @@ public class GameManager : MonoBehaviour {
         turnCount = 1;
         TurnIdicator.instance.showTurn("Turn " + turnCount, Color.blue);
 
-        actionPhase = ActionPhase.SelectUnit;
         nodeLayer = LayerMask.NameToLayer("Node");
         unitLayer = LayerMask.NameToLayer("Unit");
     }
@@ -79,6 +78,7 @@ public class GameManager : MonoBehaviour {
 
         Unit.OnAttackComplete = onUnitAttackComplete;
         Unit.OnUnitIdle = onUnitIdle;
+        Unit.OnMoveComplete = onUnitMoveComplete;
     }
 
     private void addUnit(GameObject unitPrefab, Team team,Vector3 pos, Quaternion rot, List<Unit> teamUnits, Texture texture = null)
@@ -93,49 +93,55 @@ public class GameManager : MonoBehaviour {
 
     void OnClick(Vector2 clickPos)
     {
-        switch(actionPhase)
-        {
-            case ActionPhase.SelectUnit:
-                Unit hitUnit = getHitObject<Unit>(clickPos, 1<<unitLayer);
-                if (hitUnit !=null && hitUnit.Status == UnitStatus.Ready && hitUnit.Team == currentTurnTeam)
-                {
-                    setSelectedUnit(hitUnit);
-                }
-                break;
-            case SelectionTarget.Attackee:asas
-                hitUnit = getHitObject<Unit>(clickPos, 1 << unitLayer);
-                if (hitUnit != null)
-                {
-                    Node hitNode = Grid.instance.getNodeObjFromPosition(hitUnit.transform.position).GetComponent<Node>();
-                    if (hitNode.Status == NodeStatus.Attackable)
-                    {
-                        Vector3 faceDir = (hitUnit.transform.position - selectedUnit.transform.position).normalized;
-                        selectedUnit.transform.forward = faceDir;
-                        selectedUnit.attack(hitUnit);
-                    }
-                }
-                break;
-            case SelectionTarget.Node:
-                RaycastHit hit;
-                if (Physics.Raycast(Camera.main.ScreenPointToRay(clickPos), out hit, 1000))
-                {
-                    if (hit.collider.gameObject.layer == nodeLayer)
-                    {
-                        GameObject hitNodeObj = Grid.instance.getNodeObjFromPosition(hit.point);
+        UnitStatus selectedUnitStatus = UnitStatus.Null;
+        if (selectedUnit != null)
+            selectedUnitStatus = selectedUnit.Status;
 
-                        if (selectedUnitNodeObj != null && hitNodeObj != selectedUnitNodeObj)
-                        {
-                            Node hitNode = hitNodeObj.GetComponent<Node>();
-                            if (hitNode.Status == NodeStatus.Movable)
-                            {
-                                List<GameObject> path = Grid.instance.getShortestPath(selectedUnitNodeObj, hitNodeObj);
-                                StartCoroutine(GameManager.selectedUnit.move(path));
-                                Grid.instance.clear();
-                            }
-                        }
+        if (selectedUnitStatus != UnitStatus.Moving 
+            && selectedUnitStatus != UnitStatus.Attacking
+            && selectedUnitStatus != UnitStatus.Moved)
+        {
+            Node hitNode = getHitObject<Node>(clickPos, 1 << nodeLayer);
+            if (hitNode != null)
+            {
+                if (hitNode.Status == NodeStatus.Occupied)
+                {
+                    Unit hitUnit = Grid.instance.getUnitOnNode(hitNode);
+                    if (hitUnit != null && hitUnit.Status == UnitStatus.Ready && hitUnit.Team == currentTurnTeam)
+                    {
+                        setSelectedUnit(hitUnit);
                     }
                 }
-                break;
+                else if (hitNode.Status == NodeStatus.Attackable)
+                {
+                    Vector3 faceDir = (hitNode.transform.position - selectedUnit.transform.position).normalized;
+                    faceDir.y = 0;
+                    selectedUnit.transform.forward = faceDir;
+                    selectedUnit.attack(Grid.instance.getUnitOnNode(hitNode));
+                }
+                else if (hitNode.Status == NodeStatus.Movable)
+                {
+                    List<GameObject> path = Grid.instance.getShortestPath(selectedUnitNodeObj, hitNode.gameObject);
+                    StartCoroutine(selectedUnit.move(path));
+                    Grid.instance.clear();
+                }
+            }
+        }
+        else if(selectedUnitStatus == UnitStatus.Moved)
+        {
+            Node hitNode = getHitObject<Node>(clickPos, 1 << nodeLayer);
+            if (hitNode != null)
+            {
+                if (hitNode.Status == NodeStatus.Attackable)
+                {
+                    Vector3 faceDir = (hitNode.transform.position - selectedUnit.transform.position).normalized;
+                    faceDir.y = 0;
+                    selectedUnit.transform.forward = faceDir;
+                    selectedUnit.attack(Grid.instance.getUnitOnNode(hitNode));
+
+                    下来考虑 取消  
+                }
+            }
         }
     }
 
@@ -151,11 +157,15 @@ public class GameManager : MonoBehaviour {
         return default(T);
     }
 
+    private void onUnitMoveComplete()
+    {
+        Grid.instance.highLightUnitAttackable();
+        BattleMenu.instance.show();
+    }
+
     private  void onUnitAttackComplete()
     {
-        actionPhase = ActionPhase.SelectUnit;
         Grid.instance.clear();
-        selectedUnit.setStatus(UnitStatus.Idle);
     }
 
     private void setSelectedUnit(Unit unit)
@@ -165,7 +175,6 @@ public class GameManager : MonoBehaviour {
         selectedUnitNodeObj = Grid.instance.getNodeObjFromPosition(unit.transform.position);
         Grid.instance.hightLightUnitMovable();
         Grid.instance.highLightUnitAttackable();
-        actionPhase = ActionPhase.MoveOrAttack;
     }
 
     //public void showBattleMenu(bool moved)
@@ -227,10 +236,4 @@ public class GameManager : MonoBehaviour {
 
 }
 
-public enum ActionPhase
-{
-    SelectUnit,
-    MoveOrAttack,
-    Attack
-}
 

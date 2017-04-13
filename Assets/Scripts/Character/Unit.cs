@@ -37,7 +37,7 @@ namespace Character
         private Unit attackee;
 
         public static Action OnUnitIdle;
-
+        public static Action OnMoveComplete;
         void Start()
         {
 
@@ -66,6 +66,7 @@ namespace Character
 
         public IEnumerator move(List<GameObject> path)
         {
+            status = UnitStatus.Moving;
             playRunAnim();
             for (int i = 0; i < path.Count - 1; i++)
             {
@@ -92,11 +93,14 @@ namespace Character
                 Grid.instance.setNodeStatus(nodeObj, NodeStatus.Occupied);
             }
             playIdleAnim();
+            status = UnitStatus.Moved;
+            OnMoveComplete();
         }
 
 
         public void attack(Unit attackee)
         {
+            status = UnitStatus.Attacking;
             animator.SetTrigger("attack");
             this.attackee = attackee;
         }
@@ -147,6 +151,7 @@ namespace Character
 
         public void attackAminComplete()
         {
+            setStatus(UnitStatus.Idle);
             OnAttackComplete();
         }
 
@@ -159,7 +164,11 @@ namespace Character
     public enum UnitStatus
     {
         Idle,
-        Ready
+        Ready,
+        Moving,
+        Moved,
+        Attacking,
+        Null
     }
 
 }

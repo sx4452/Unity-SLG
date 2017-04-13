@@ -427,6 +427,21 @@ namespace GridSystem
             return false;
         }
 
+        public Unit getUnitOnNode(Node node)
+        {
+            RaycastHit hit;
+            Vector3 raycastPosition = node.transform.position;
+            raycastPosition.y -= 2;//raycast起点放低点，不然在unit中间，hit不到
+
+            if (Physics.Raycast(raycastPosition, Vector3.up, out hit, 1000, 1 << GameManager.unitLayer))
+            {
+                Unit hitUnit = hit.collider.gameObject.GetComponent<Unit>();
+                return hitUnit;
+            }
+            else
+                return null;
+        }
+
         void OnDrawGizmos()
         {
             horiCount = (int)Math.Floor(sizeX / nodeSize);
