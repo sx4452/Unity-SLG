@@ -9,11 +9,10 @@ namespace UI
     {
         public static BattleMenu instance;
 
-        
+
         private GameObject idleBtnObj;
         private GameObject cancelObj;
-        private Vector3 returnPos;
-        private Quaternion returnRot;
+
 
         public GameObject IdleBtnObj
         {
@@ -42,26 +41,23 @@ namespace UI
 
             Button cancelBtn = cancelObj.GetComponent<Button>();
             cancelBtn.onClick.AddListener(onCancelBtnClick);
+
+            RectTransform rectTrans = GetComponent<RectTransform>();
+            rectTrans.anchoredPosition = new Vector2(50, 50);
         }
 
         private void onIdleBtnClick()
         {
             gameObject.SetActive(false);
             GameManager.selectedUnit.setStatus(UnitStatus.Idle);
+            Grid.instance.clear();
         }
 
         private void onCancelBtnClick()
         {
             gameObject.SetActive(false);
-
-                GameObject nodeObj = Grid.instance.getNodeObjFromPosition(GameManager.selectedUnit.transform.position);
-                Grid.instance.setNodeStatus(nodeObj, NodeStatus.Normal);
-                nodeObj = Grid.instance.getNodeObjFromPosition(returnPos);
-                Grid.instance.setNodeStatus(nodeObj, NodeStatus.Occupied);
-
-                GameManager.selectedUnit.transform.position = returnPos;
-                GameManager.selectedUnit.transform.rotation = returnRot;
-                Grid.instance.clear();
+            GameManager.selectedUnit.cancelMove();
+            Grid.instance.clear();
         }
 
         public void showCancelOnly()
@@ -70,14 +66,30 @@ namespace UI
             //moveBtnObj.SetActive(false);
             IdleBtnObj.SetActive(false);
             RectTransform rectTrans = GetComponent<RectTransform>();
-            rectTrans.anchoredPosition = new Vector2(50,50);
+            rectTrans.anchoredPosition = new Vector2(50, 50);
         }
 
         public void show()
         {
             gameObject.SetActive(true);
-            RectTransform rectTrans = GetComponent<RectTransform>();
-            rectTrans.anchoredPosition = new Vector2(50, 50);
+
+        }
+
+        public void hide()
+        {
+            gameObject.SetActive(false);
+        }
+
+        public void showIdle()
+        {
+            gameObject.SetActive(true);
+            CancelBtnObj.SetActive(false);
+        }
+
+        public void hideIdle()
+        {
+            CancelBtnObj.SetActive(true);
+            gameObject.SetActive(false);
         }
     }
 }

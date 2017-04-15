@@ -38,6 +38,10 @@ namespace Character
 
         public static Action OnUnitIdle;
         public static Action OnMoveComplete;
+
+        private Vector3 returnPos;
+        private Quaternion returnRot;
+
         void Start()
         {
 
@@ -64,8 +68,22 @@ namespace Character
             healthBar.setHp(hp);
         }
 
+        public void cancelMove()
+        {
+            GameObject nodeObj = Grid.instance.getNodeObjFromPosition(transform.position);
+            Grid.instance.setNodeStatus(nodeObj,NodeStatus.Normal);
+            transform.position = returnPos;
+            transform.rotation = returnRot;
+            nodeObj = Grid.instance.getNodeObjFromPosition(transform.position);
+            Grid.instance.setNodeStatus(nodeObj, NodeStatus.Occupied);
+            setStatus(UnitStatus.Ready);
+        }
+
         public IEnumerator move(List<GameObject> path)
         {
+            returnPos = transform.position;
+            returnRot = transform.rotation;
+
             status = UnitStatus.Moving;
             playRunAnim();
             for (int i = 0; i < path.Count - 1; i++)

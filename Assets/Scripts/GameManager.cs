@@ -118,12 +118,14 @@ public class GameManager : MonoBehaviour {
                     faceDir.y = 0;
                     selectedUnit.transform.forward = faceDir;
                     selectedUnit.attack(Grid.instance.getUnitOnNode(hitNode));
+                    BattleMenu.instance.hideIdle();
                 }
                 else if (hitNode.Status == NodeStatus.Movable)
                 {
                     List<GameObject> path = Grid.instance.getShortestPath(selectedUnitNodeObj, hitNode.gameObject);
                     StartCoroutine(selectedUnit.move(path));
                     Grid.instance.clear();
+                    BattleMenu.instance.hideIdle();
                 }
             }
         }
@@ -134,12 +136,12 @@ public class GameManager : MonoBehaviour {
             {
                 if (hitNode.Status == NodeStatus.Attackable)
                 {
+                    BattleMenu.instance.hide();
+
                     Vector3 faceDir = (hitNode.transform.position - selectedUnit.transform.position).normalized;
                     faceDir.y = 0;
                     selectedUnit.transform.forward = faceDir;
                     selectedUnit.attack(Grid.instance.getUnitOnNode(hitNode));
-
-                    下来考虑 取消  
                 }
             }
         }
@@ -175,6 +177,8 @@ public class GameManager : MonoBehaviour {
         selectedUnitNodeObj = Grid.instance.getNodeObjFromPosition(unit.transform.position);
         Grid.instance.hightLightUnitMovable();
         Grid.instance.highLightUnitAttackable();
+
+        BattleMenu.instance.showIdle();
     }
 
     //public void showBattleMenu(bool moved)
@@ -209,6 +213,7 @@ public class GameManager : MonoBehaviour {
 
     private void switchTeam()
     {
+        selectedUnit = null;
         switch(currentTurnTeam)
         {
             case Team.Team1:
