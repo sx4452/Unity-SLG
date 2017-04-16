@@ -69,6 +69,15 @@ public class GameManager : MonoBehaviour {
                 nodeObjMouseOver.GetComponent<Renderer>().material.SetInt("_Animate", 1);
             }
         }
+        else
+        {
+            if (nodeObjMouseOver != null)
+            {
+                nodeObjMouseOver.GetComponent<Renderer>().material.SetInt("_Animate", 0);
+                nodeObjMouseOver = null;
+            }
+        }
+        
     }
 
     /// <summary>

@@ -2,13 +2,14 @@
 using UnityEngine.UI;
 using GridSystem;
 using Character;
+using UnityEngine.EventSystems;
 
 namespace UI
 {
-    public class BattleMenu : MonoBehaviour
-    {
+    public class BattleMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    { 
         public static BattleMenu instance;
-
+        public static bool isMouseover;
 
         private GameObject idleBtnObj;
         private GameObject cancelObj;
@@ -44,6 +45,7 @@ namespace UI
 
             RectTransform rectTrans = GetComponent<RectTransform>();
             rectTrans.anchoredPosition = new Vector2(50, 50);
+            isMouseover = false;
         }
 
         private void onIdleBtnClick()
@@ -51,6 +53,7 @@ namespace UI
             gameObject.SetActive(false);
             GameManager.selectedUnit.setStatus(UnitStatus.Idle);
             Grid.instance.clear();
+            isMouseover = false;
         }
 
         private void onCancelBtnClick()
@@ -58,12 +61,11 @@ namespace UI
             gameObject.SetActive(false);
             GameManager.selectedUnit.cancelMove();
             Grid.instance.clear();
+            isMouseover = false;
         }
 
         public void showCancelOnly()
         {
-            //attackBtnObj.SetActive(false);
-            //moveBtnObj.SetActive(false);
             IdleBtnObj.SetActive(false);
             RectTransform rectTrans = GetComponent<RectTransform>();
             rectTrans.anchoredPosition = new Vector2(50, 50);
@@ -78,6 +80,7 @@ namespace UI
         public void hide()
         {
             gameObject.SetActive(false);
+            isMouseover = false;
         }
 
         public void showIdle()
@@ -90,6 +93,17 @@ namespace UI
         {
             CancelBtnObj.SetActive(true);
             gameObject.SetActive(false);
+            isMouseover = false;
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            isMouseover = true;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            isMouseover = false;
         }
     }
 }
