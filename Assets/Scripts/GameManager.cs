@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour {
 
     public static int nodeLayer;
     public static int unitLayer;
-
+    private GameObject nodeObjMouseOver;
 	void Start()
     {
         // if the singleton hasn't been initialized yet
@@ -52,6 +52,23 @@ public class GameManager : MonoBehaviour {
 
         nodeLayer = LayerMask.NameToLayer("Node");
         unitLayer = LayerMask.NameToLayer("Unit");
+    }
+
+    void Update()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if(Physics.Raycast(ray, out hit, 1000,1<<nodeLayer))
+        {
+            GameObject hitNodeObj = Grid.instance.getNodeObjFromPosition(hit.point);
+            if(!hitNodeObj.Equals(nodeObjMouseOver))
+            {
+                if (nodeObjMouseOver != null)
+                    nodeObjMouseOver.GetComponent<Renderer>().material.SetInt("_Animate", 0);
+                nodeObjMouseOver = hitNodeObj;
+                nodeObjMouseOver.GetComponent<Renderer>().material.SetInt("_Animate", 1);
+            }
+        }
     }
 
     /// <summary>
@@ -118,6 +135,7 @@ public class GameManager : MonoBehaviour {
                     faceDir.y = 0;
                     selectedUnit.transform.forward = faceDir;
                     selectedUnit.attack(Grid.instance.getUnitOnNode(hitNode));
+                    Grid.instance.clear();
                     BattleMenu.instance.hideIdle();
                 }
                 else if (hitNode.Status == NodeStatus.Movable)
